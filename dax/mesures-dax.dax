@@ -1,0 +1,69 @@
+/*=============================================================================
+  PROJET : Analyse Commerciale et Financière des Ventes de Pizzas
+  AUTEUR : Brice Abogo
+  TABLE  : pizzas_sales
+  OBJET  : Définition des mesures de base, des ratios (KPIs) et des parts (%)
+=============================================================================*/
+
+-------------------------------------------------------------------------------
+-- 1. MESURES DE BASE (AGRÉGATIONS VOLUMÉTRIQUES ET MONÉTAIRES)
+-------------------------------------------------------------------------------
+
+-- Chiffre d'affaires total généré par les ventes de pizzas
+Total Revenue = 
+SUM ( pizzas_sales[total_price] )
+
+-- Nombre total de commandes uniques enregistrées
+Total Orders = 
+DISTINCTCOUNT ( pizzas_sales[order_id] )
+
+-- Quantité totale de pizzas vendues
+Total Pizzas Sold = 
+SUM ( pizzas_sales[quantity] )
+
+
+-------------------------------------------------------------------------------
+-- 2. INDICATEURS CLÉS DE PERFORMANCE ET RATIOS (KPIs)
+-------------------------------------------------------------------------------
+
+-- Panier moyen par commande (Average Order Value - AOV)
+-- Usage de DIVIDE pour gérer proprement l'absence de données (division par zéro)
+Avg Revenue = 
+DIVIDE (
+    [Total Revenue],
+    [Total Orders],
+    BLANK ()
+)
+
+-- Nombre moyen de pizzas par commande (Average Quantity Sold per Order)
+Avg Qty Sold = 
+DIVIDE (
+    [Total Pizzas Sold],
+    [Total Orders],
+    BLANK ()
+)
+
+
+-------------------------------------------------------------------------------
+-- 3. MESURES ANALYTIQUES COMPLÉMENTAIRES (PART DE CHIFFRE D'AFFAIRES)
+-------------------------------------------------------------------------------
+
+-- Poids relatif (%) de la sélection courante par rapport au chiffre d'affaires global
+-- (Respecte les filtres externes mais ignore le filtre de catégorie ou de taille)
+Revenue Share % = 
+DIVIDE (
+    [Total Revenue],
+    CALCULATE (
+        [Total Revenue],
+        ALLSELECTED ( pizzas_sales )
+    ),
+    BLANK ()
+)
+
+-- Prix unitaire moyen pondéré par pizza vendue
+Avg Price Per Pizza = 
+DIVIDE (
+    [Total Revenue],
+    [Total Pizzas Sold],
+    BLANK ()
+)
